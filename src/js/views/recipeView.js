@@ -4,6 +4,8 @@ import { Fraction } from 'fractional';
 class RecipeView {
   #parentElement = document.querySelector('.recipe');
   #data;
+  #errorMessage = 'We could not find that. Please try another one!';
+  #message = 'Start by searching for a recipe or an ingredient. Have fun!';
 
   render(data) {
     this.#data = data;
@@ -13,7 +15,7 @@ class RecipeView {
     this.#parentElement.insertAdjacentHTML('afterbegin', html);
   }
 
-  renderSpinner = function () {
+  renderSpinner() {
     const markup = `
       <div class="spinner">
         <svg>
@@ -21,9 +23,45 @@ class RecipeView {
         </svg>
       </div>`;
 
-    this.#parentElement.innerHTML = '';
+    this.#clearParentElement();
     this.#parentElement.insertAdjacentHTML('afterbegin', markup);
-  };
+  }
+
+  addHandlerRender(handler) {
+    ['hashchange', 'load'].forEach(event =>
+      window.addEventListener(event, handler)
+    );
+  }
+
+  renderError(message = this.#errorMessage) {
+    const html = `
+        <div class="error">
+            <div>
+                <svg>
+                <use href="${icons}#icon-alert-triangle"></use>
+                </svg>
+            </div>
+            <p>N${message}</p>
+        </div> `;
+
+    this.#clearParentElement();
+    this.#parentElement.insertAdjacentHTML('afterbegin', html);
+  }
+
+  renderMessage(message = this.#message) {
+    const html = `
+        <div class="message">
+          <div>
+            <svg>
+              <use href="${icons}#icon-smile"></use>
+            </svg>
+          </div>
+          <p>${message}</p>
+        </div>`;
+
+    this.#clearParentElement();
+    this.#parentElement.insertAdjacentHTML('afterbegin', html);
+  }
 
   #clearParentElement() {
     this.#parentElement.innerHTML = '';
