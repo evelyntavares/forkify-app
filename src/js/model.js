@@ -1,5 +1,10 @@
-import { API_URL, API_KEY } from './config';
-import { RESULTS_PER_PAGE } from './config';
+import {
+  API_URL,
+  API_KEY,
+  RESULTS_PER_PAGE,
+  DELETE_OPERATION,
+  POST_OPERATION,
+} from './config';
 import { makeRequest } from './helper';
 
 export const state = {
@@ -124,9 +129,29 @@ export const uploadRecipe = async function (newRecipe) {
     ingredients,
   };
 
-  const response = await makeRequest(`${API_URL}?key=${API_KEY}`, recipe);
+  const response = await makeRequest(
+    `${API_URL}?key=${API_KEY}`,
+    POST_OPERATION,
+    recipe
+  );
   state.recipe = createRecipeObject(response);
   addBookmark(state.recipe);
+};
+
+export const deleteRecipe = async function (recipeId) {
+  try {
+    const response = await makeRequest(
+      `${API_URL}/${recipeId}?key=${API_KEY}`,
+      DELETE_OPERATION
+    );
+
+    removeBookmark(recipeId);
+
+    return response;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
 };
 
 const _extractIngredientsFromForm = function (newRecipe) {

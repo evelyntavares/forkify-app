@@ -1,4 +1,4 @@
-import { TIMEOUT_SECONDS } from './config';
+import { TIMEOUT_SECONDS, GET_OPERATION } from './config';
 
 export const getJSON = async function (url) {
   try {
@@ -15,49 +15,33 @@ export const getJSON = async function (url) {
   }
 };
 
-export const makeRequest = async function (url, uploadData = undefined) {
+export const makeRequest = async function (
+  url,
+  method = GET_OPERATION,
+  uploadData = undefined
+) {
   let request;
+  let options;
 
-  if (uploadData) {
-    const options = {
-      method: 'POST',
+  if (method === GET_OPERATION) {
+    request = fetch(url);
+  } else {
+    options = {
+      method: `${method}`,
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(uploadData),
+      ...(uploadData && { body: JSON.stringify(uploadData) }),
     };
     request = fetch(url, options);
-  } else {
-    request = fetch(url);
   }
 
   try {
     const response = await Promise.race([request, timeout(TIMEOUT_SECONDS)]);
-    const data = await response.json();
 
-    if (!response.ok) {
-      throw new Error(`${data.message} (${response.status})`);
+    if (response.status === 204) {
+      return response;
     }
-    return data;
-  } catch (err) {
-    throw err;
-  }
-};
-
-export const sendJSON = async function (url, uploadData) {
-  try {
-    const options = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(uploadData),
-    };
-
-    const response = await Promise.race([
-      fetch(url, options),
-      timeout(TIMEOUT_SECONDS),
-    ]);
 
     const data = await response.json();
 

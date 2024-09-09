@@ -1,6 +1,3 @@
-import 'core-js/stable';
-import 'regenerator-runtime/runtime';
-
 import * as model from './model.js';
 import { MODAL_TIME_TO_CLOSE } from './config';
 import recipeView from './views/recipeView.js';
@@ -9,10 +6,6 @@ import resultsView from './views/resultsView.js';
 import paginationView from './views/paginationView.js';
 import bookmarksView from './views/bookmarksView.js';
 import newRecipeView from './views/newRecipeView.js';
-
-// if (module.hot) {
-//   module.hot.accept();
-// }
 
 const controlRecipes = async function () {
   try {
@@ -98,11 +91,25 @@ const controlNewRecipe = async function (newRecipe) {
   }
 };
 
+const controlDeleteRecipe = async function () {
+  const response = await model.deleteRecipe(model.state.recipe.id);
+
+  if (response.status === 204) {
+    await model.loadSearchResults(model.state.search.query);
+    resultsView.render(model.getSearchResultsPage());
+    paginationView.render(model.state.search);
+
+    bookmarksView.update(model.state.bookmarks);
+    window.history.back();
+  }
+};
+
 const init = function () {
   bookmarksView.addHandlerRender(controlBookmarks);
   recipeView.addHandlerRender(controlRecipes);
   recipeView.addHandlerUpdateServings(controlServings);
   recipeView.addHandlerAddBookmark(controlAddBookmark);
+  recipeView.addHandlerDeleteRecipe(controlDeleteRecipe);
   searchView.addHandlerSearch(controlSearchResults);
   paginationView.addHandlerClick(controlPagination);
   newRecipeView.addHandlerUpload(controlNewRecipe);

@@ -36,6 +36,15 @@ class RecipeView extends View {
     });
   }
 
+  addHandlerDeleteRecipe(handler) {
+    this._parentElement.addEventListener('click', function (e) {
+      const btn = e.target.closest('.btn--bin');
+
+      if (!btn) return;
+      handler();
+    });
+  }
+
   _generateHtml() {
     return `
       <figure class="recipe__fig">
@@ -96,8 +105,12 @@ class RecipeView extends View {
     }"></use>
           </svg>
         </button>
+        <button class="btn--round btn--bin ${this._data.key ? '' : 'hidden'}">
+          <svg class="">
+            <use href="${icons}#icon-bin"></use>
+          </svg>
+        </button>
       </div>
-
       <div class="recipe__ingredients">
         <h2 class="heading--2">Recipe ingredients</h2>
         <ul class="recipe__ingredient-list">
